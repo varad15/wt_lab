@@ -1,0 +1,207 @@
+Here’s a step-by-step guide to design and develop a simple PHP application for managing employee records:
+
+---
+
+### **1. Prerequisites**
+- **Install XAMPP/WAMP/MAMP**: Use a local server setup.
+- **Create a MySQL Database**: Create a database to store employee records.
+
+---
+
+### **2. Create the Database**
+1. Open **phpMyAdmin** and create a database called `employee_db`.
+2. Create a table `employees`:
+   ```sql
+   CREATE TABLE employees (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       name VARCHAR(100) NOT NULL,
+       email VARCHAR(100) NOT NULL,
+       position VARCHAR(50) NOT NULL,
+       salary DECIMAL(10, 2) NOT NULL
+   );
+   ```
+
+---
+
+### **3. File Structure**
+Create the following file structure in your project directory:
+```
+employee-app/
+├── db.php
+├── add_employee.php
+├── list_employees.php
+└── style.css
+```
+
+---
+
+### **4. Create the Database Connection (`db.php`)**
+```php
+<?php
+$host = "localhost";
+$username = "root";
+$password = "";
+$database = "employee_db";
+
+$conn = new mysqli($host, $username, $password, $database);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+?>
+```
+
+---
+
+### **5. Add Employee Form (`add_employee.php`)**
+```php
+<?php
+include 'db.php';
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $position = $_POST['position'];
+    $salary = $_POST['salary'];
+
+    $sql = "INSERT INTO employees (name, email, position, salary) VALUES ('$name', '$email', '$position', '$salary')";
+    if ($conn->query($sql) === TRUE) {
+        echo "<p>Employee added successfully!</p>";
+    } else {
+        echo "<p>Error: " . $conn->error . "</p>";
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Employee</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Add Employee</h1>
+    <form method="POST" action="add_employee.php">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br>
+        
+        <label for="position">Position:</label>
+        <input type="text" id="position" name="position" required><br>
+        
+        <label for="salary">Salary:</label>
+        <input type="number" id="salary" name="salary" step="0.01" required><br>
+        
+        <button type="submit">Add Employee</button>
+    </form>
+    <a href="list_employees.php">View Employees</a>
+</body>
+</html>
+```
+
+---
+
+### **6. List Employees Page (`list_employees.php`)**
+```php
+<?php
+include 'db.php';
+
+$sql = "SELECT * FROM employees";
+$result = $conn->query($sql);
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee List</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Employee List</h1>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Position</th>
+            <th>Salary</th>
+        </tr>
+        <?php
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                echo "<tr>";
+                echo "<td>" . $row['id'] . "</td>";
+                echo "<td>" . $row['name'] . "</td>";
+                echo "<td>" . $row['email'] . "</td>";
+                echo "<td>" . $row['position'] . "</td>";
+                echo "<td>" . $row['salary'] . "</td>";
+                echo "</tr>";
+            }
+        } else {
+            echo "<tr><td colspan='5'>No employees found</td></tr>";
+        }
+        ?>
+    </table>
+    <a href="add_employee.php">Add Employee</a>
+</body>
+</html>
+```
+
+---
+
+### **7. CSS for Styling (`style.css`)**
+```css
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+label {
+    display: inline-block;
+    width: 100px;
+}
+
+input {
+    margin-bottom: 10px;
+    padding: 5px;
+    width: 200px;
+}
+
+button {
+    padding: 5px 10px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f4f4f4;
+}
+```
+
+---
+
+### **8. Testing the Application**
+1. **Start the server** using XAMPP/WAMP and navigate to `http://localhost/employee-app/add_employee.php`.
+2. **Add employees** using the form.
+3. **View the employee list** at `http://localhost/employee-app/list_employees.php`.
+
+---
+
+Would you like additional features, like updating or deleting employee records?
